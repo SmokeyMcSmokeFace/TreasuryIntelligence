@@ -1,6 +1,6 @@
 "use client";
 
-import { TreasuryCategory, CATEGORY_META } from "@/types";
+import { TreasuryCategory } from "@/types";
 
 const ALL_CATEGORIES: { key: "all" | TreasuryCategory; label: string }[] = [
   { key: "all", label: "All" },
