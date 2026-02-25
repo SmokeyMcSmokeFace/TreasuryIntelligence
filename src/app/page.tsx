@@ -8,6 +8,7 @@ import { NewsFeed } from "@/components/NewsFeed";
 import { ChatPanel } from "@/components/ChatPanel";
 import { CashByCountryChart } from "@/components/CashByCountryChart";
 import { CashByBankChart } from "@/components/CashByBankChart";
+import { ResizableColumns } from "@/components/ResizableColumns";
 import { NewsItem, TreasuryCategory, DailyBriefing as BriefingType, CashPosition } from "@/types";
 import { CASH_BY_COUNTRY, CASH_BY_BANK, COUNTRY_KEYWORDS, BANK_KEYWORDS } from "@/lib/mock-data";
 import { timeAgo } from "@/lib/utils";
@@ -124,8 +125,43 @@ export default function Dashboard() {
 
   const criticalCount = news.filter((n) => n.urgency >= 4).length;
 
+  const leftPanel = (
+    <div className="flex flex-col gap-4">
+      <DailyBriefing
+        briefing={briefing}
+        isLoading={isBriefingLoading}
+        onRegenerate={() => loadBriefing(true)}
+      />
+      <CashByCountryChart data={countryData} />
+      <CashByBankChart data={bankData} />
+    </div>
+  );
+
+  const centerPanel = (
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          Intelligence Feed
+          {activeCategory !== "all" && (
+            <span className="ml-2 text-gold-400">
+              › {activeCategory.replace("-", " ")}
+            </span>
+          )}
+        </h2>
+        <span className="text-xs text-slate-600">
+          {filteredNews.length} item{filteredNews.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+      <div className="flex-1 overflow-y-auto pr-1">
+        <NewsFeed items={filteredNews} isLoading={isNewsLoading} />
+      </div>
+    </div>
+  );
+
+  const rightPanel = <ChatPanel />;
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#060b18]">
+    <div className="h-screen flex flex-col bg-[#060b18] overflow-hidden">
       <Header
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
@@ -140,42 +176,12 @@ export default function Dashboard() {
         counts={categoryCounts}
       />
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-4 p-4 max-w-[1600px] mx-auto w-full">
-        {/* LEFT COLUMN: Briefing + Charts */}
-        <aside className="flex flex-col gap-4 min-w-0">
-          <DailyBriefing
-            briefing={briefing}
-            isLoading={isBriefingLoading}
-            onRegenerate={() => loadBriefing(true)}
-          />
-          <CashByCountryChart data={countryData} />
-          <CashByBankChart data={bankData} />
-        </aside>
-
-        {/* CENTER: News Feed */}
-        <section className="min-w-0 overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Intelligence Feed
-              {activeCategory !== "all" && (
-                <span className="ml-2 text-gold-400">
-                  › {activeCategory.replace("-", " ")}
-                </span>
-              )}
-            </h2>
-            <span className="text-xs text-slate-600">
-              {filteredNews.length} item{filteredNews.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-          <div className="overflow-y-auto max-h-[calc(100vh-160px)] pr-1">
-            <NewsFeed items={filteredNews} isLoading={isNewsLoading} />
-          </div>
-        </section>
-
-        {/* RIGHT COLUMN: Chat */}
-        <aside className="min-w-0">
-          <ChatPanel />
-        </aside>
+      <main className="flex-1 flex min-h-0 overflow-hidden">
+        <ResizableColumns
+          left={leftPanel}
+          center={centerPanel}
+          right={rightPanel}
+        />
       </main>
     </div>
   );
