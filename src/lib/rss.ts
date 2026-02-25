@@ -53,6 +53,17 @@ async function fetchSource(
   }
 }
 
+// Search Google News for a free-form query and return a formatted snippet string
+export async function searchNews(query: string, limit = 8): Promise<string> {
+  const encoded = encodeURIComponent(query.replace(/\s+/g, " ").trim());
+  const url = `https://news.google.com/rss/search?q=${encoded}&hl=en-US&gl=US&ceid=US:en`;
+  const items = await fetchSource(url, "Search", "general", limit);
+  if (!items.length) return "No results found for that query.";
+  return items
+    .map((i) => `• ${i.title}${i.description ? ` — ${i.description.slice(0, 120)}` : ""}`)
+    .join("\n");
+}
+
 export async function fetchAllNews(): Promise<NewsItem[]> {
   const promises: Promise<NewsItem[]>[] = [];
 

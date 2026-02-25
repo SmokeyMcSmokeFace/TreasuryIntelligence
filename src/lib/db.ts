@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { NewsItem, DailyBriefing } from "@/types";
+import { getSettings } from "./settings";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const NEWS_FILE = path.join(DATA_DIR, "news.json");
@@ -33,7 +34,15 @@ export function saveNewsItems(items: NewsItem[]): void {
   const existing = readJson<NewsItem[]>(NEWS_FILE, []);
   const existingUrls = new Set(existing.map((i) => i.url));
   const newItems = items.filter((i) => i.url && !existingUrls.has(i.url));
-  const combined = [...newItems, ...existing].slice(0, MAX_STORED_ITEMS);
+
+  // Apply age cutoff — also purges old articles already in cache
+  const { newsFeedDays } = getSettings();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - newsFeedDays);
+
+  const combined = [...newItems, ...existing]
+    .filter((i) => new Date(i.publishedAt) >= cutoff)
+    .slice(0, MAX_STORED_ITEMS);
   writeJson(NEWS_FILE, combined);
 }
 
@@ -57,6 +66,12 @@ export function getNewsItems(options?: {
         i.source.toLowerCase().includes(q)
     );
   }
+
+  // Apply age cutoff
+  const { newsFeedDays } = getSettings();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - newsFeedDays);
+  items = items.filter((i) => new Date(i.publishedAt) >= cutoff);
 
   // Sort: urgency desc, then recency desc
   items.sort((a, b) => {

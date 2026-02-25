@@ -4,7 +4,7 @@ import {
   type Message,
 } from "@aws-sdk/client-bedrock-runtime";
 
-const client = new BedrockRuntimeClient({
+export const client = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: process.env.AWS_ACCESS_KEY_ID
     ? {
@@ -17,7 +17,7 @@ const client = new BedrockRuntimeClient({
 
 // Verify your model ID in the AWS Bedrock console under "Model access"
 // Cross-region inference profile format: us.anthropic.claude-{model}-{date}-v{n}:{n}
-const MODEL_ID =
+export const MODEL_ID =
   process.env.BEDROCK_MODEL_ID ||
   "us.anthropic.claude-sonnet-4-5-20250514-v1:0";
 
