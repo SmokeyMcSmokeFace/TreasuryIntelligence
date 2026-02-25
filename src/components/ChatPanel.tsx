@@ -58,7 +58,7 @@ export function ChatPanel() {
   }
 
   return (
-    <div className="border border-slate-800 rounded-lg bg-slate-900/40 flex flex-col h-full">
+    <div className="border border-slate-800 rounded-lg bg-slate-900/40 flex flex-col lg:h-full">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-800">
         <MessageSquare className="w-4 h-4 text-gold-400" />

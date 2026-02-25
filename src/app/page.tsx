@@ -148,7 +148,7 @@ export default function Dashboard() {
   );
 
   const centerPanel = (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col lg:h-full min-h-0">
       <div className="flex items-center justify-between mb-3 shrink-0">
         <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
           Intelligence Feed
@@ -200,7 +200,7 @@ export default function Dashboard() {
 
       {/* ── Mobile: scrollable panel — padding-bottom clears the fixed nav ── */}
       <div
-        className="flex lg:hidden flex-1 overflow-x-hidden overflow-y-auto p-4"
+        className="lg:hidden flex-1 overflow-x-hidden overflow-y-auto p-4"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
       >
         {mobileTab === "briefing" && leftPanel}
