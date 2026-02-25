@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { FileText, TrendingUp, MessageSquare } from "lucide-react";
 import { Header } from "@/components/Header";
 import { CategoryTabs } from "@/components/CategoryTabs";
 import { DailyBriefing } from "@/components/DailyBriefing";
@@ -12,6 +13,14 @@ import { ResizableColumns } from "@/components/ResizableColumns";
 import { NewsItem, TreasuryCategory, DailyBriefing as BriefingType, CashPosition } from "@/types";
 import { CASH_BY_COUNTRY, CASH_BY_BANK, COUNTRY_KEYWORDS, BANK_KEYWORDS } from "@/lib/mock-data";
 import { timeAgo } from "@/lib/utils";
+
+type MobileTab = "briefing" | "feed" | "chat";
+
+const MOBILE_TABS: { id: MobileTab; label: string; icon: React.ElementType }[] = [
+  { id: "briefing", label: "Briefing", icon: FileText },
+  { id: "feed",     label: "Feed",     icon: TrendingUp },
+  { id: "chat",     label: "Chat",     icon: MessageSquare },
+];
 
 // Cross-reference news with cash positions to flag risks
 function flagRisks(
@@ -46,6 +55,7 @@ export default function Dashboard() {
   const [lastRefresh, setLastRefresh] = useState<string | undefined>();
   const [countryData, setCountryData] = useState<CashPosition[]>(CASH_BY_COUNTRY);
   const [bankData, setBankData] = useState<CashPosition[]>(CASH_BY_BANK);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("feed");
 
   // Load news from cache
   const loadNews = useCallback(async () => {
@@ -170,19 +180,63 @@ export default function Dashboard() {
         lastRefresh={lastRefresh}
       />
 
-      <CategoryTabs
-        active={activeCategory}
-        onChange={setActiveCategory}
-        counts={categoryCounts}
-      />
+      {/* Category tabs: always on desktop, only on Feed tab on mobile */}
+      <div className={mobileTab === "feed" ? "block" : "hidden lg:block"}>
+        <CategoryTabs
+          active={activeCategory}
+          onChange={setActiveCategory}
+          counts={categoryCounts}
+        />
+      </div>
 
-      <main className="flex-1 flex min-h-0 overflow-hidden">
+      {/* ── Desktop: resizable three-column layout ── */}
+      <main className="hidden lg:flex flex-1 min-h-0 overflow-hidden">
         <ResizableColumns
           left={leftPanel}
           center={centerPanel}
           right={rightPanel}
         />
       </main>
+
+      {/* ── Mobile: single panel + bottom tab bar ── */}
+      <div className="flex lg:hidden flex-1 flex-col min-h-0 overflow-hidden">
+        {/* Active panel */}
+        <div className="flex-1 overflow-y-auto p-4 pb-2">
+          {mobileTab === "briefing" && leftPanel}
+          {mobileTab === "feed"     && centerPanel}
+          {mobileTab === "chat"     && <ChatPanel />}
+        </div>
+
+        {/* Bottom tab bar */}
+        <nav className="shrink-0 border-t border-slate-800 bg-[#0a1128]/95 backdrop-blur-sm safe-area-pb">
+          <div className="flex">
+            {MOBILE_TABS.map(({ id, label, icon: Icon }) => {
+              const isActive = mobileTab === id;
+              const hasBadge = id === "feed" && criticalCount > 0;
+              return (
+                <button
+                  key={id}
+                  onClick={() => setMobileTab(id)}
+                  className={`flex-1 flex flex-col items-center gap-1 py-3 px-2 text-xs font-medium transition-colors relative ${
+                    isActive ? "text-gold-400" : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  <div className="relative">
+                    <Icon className="w-5 h-5" />
+                    {hasBadge && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    )}
+                  </div>
+                  <span>{label}</span>
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gold-400 rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
     </div>
   );
 }
