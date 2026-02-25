@@ -1,6 +1,7 @@
 "use client";
 
-import { RefreshCw, Shield, TrendingUp, AlertTriangle } from "lucide-react";
+import { RefreshCw, Shield, TrendingUp, AlertTriangle, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   onRefresh: () => void;
@@ -17,7 +18,13 @@ export function Header({
   criticalCount,
   lastRefresh,
 }: HeaderProps) {
+  const router = useRouter();
   const now = new Date();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }
   const dateStr = now.toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -64,15 +71,24 @@ export function Header({
           )}
         </div>
 
-        {/* Refresh */}
-        <button
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-gold-600/50 bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-          {isRefreshing ? "Refreshing..." : "Refresh Intel"}
-        </button>
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-gold-600/50 bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+            {isRefreshing ? "Refreshing..." : "Refresh Intel"}
+          </button>
+          <button
+            onClick={handleLogout}
+            title="Sign out"
+            className="p-1.5 rounded border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-600 transition-all"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </header>
   );
