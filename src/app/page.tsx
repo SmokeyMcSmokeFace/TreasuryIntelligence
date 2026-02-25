@@ -200,7 +200,7 @@ export default function Dashboard() {
 
       {/* ── Mobile: scrollable panel — padding-bottom clears the fixed nav ── */}
       <div
-        className="flex lg:hidden flex-1 overflow-y-auto p-4"
+        className="flex lg:hidden flex-1 overflow-x-hidden overflow-y-auto p-4"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
       >
         {mobileTab === "briefing" && leftPanel}

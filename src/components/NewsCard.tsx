@@ -13,7 +13,7 @@ export function NewsCard({ item }: NewsCardProps) {
   const urgClass = urgencyColor(item.urgency);
 
   return (
-    <article className="group relative border border-slate-800 rounded-lg bg-slate-900/40 hover:bg-slate-900/80 hover:border-slate-700 transition-all p-4">
+    <article className="group relative border border-slate-800 rounded-lg bg-slate-900/40 hover:bg-slate-900/80 hover:border-slate-700 transition-all p-4 w-full overflow-hidden">
       {/* Urgency stripe */}
       {item.urgency >= 4 && (
         <div

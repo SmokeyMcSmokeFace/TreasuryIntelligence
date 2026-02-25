@@ -91,7 +91,7 @@ export function DailyBriefing({ briefing, isLoading, onRegenerate }: DailyBriefi
 
       {/* Content */}
       {expanded && (
-        <div className="px-4 py-3 max-h-[420px] overflow-y-auto">
+        <div className="px-4 py-3 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-8 text-slate-600">
               <Loader2 className="w-4 h-4 animate-spin text-gold-500/50" />
