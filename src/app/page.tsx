@@ -198,46 +198,48 @@ export default function Dashboard() {
         />
       </main>
 
-      {/* ── Mobile: single panel + bottom tab bar ── */}
-      <div className="flex lg:hidden flex-1 flex-col min-h-0 overflow-hidden">
-        {/* Active panel */}
-        <div className="flex-1 overflow-y-auto p-4 pb-2">
-          {mobileTab === "briefing" && leftPanel}
-          {mobileTab === "feed"     && centerPanel}
-          {mobileTab === "chat"     && <ChatPanel />}
-        </div>
-
-        {/* Bottom tab bar */}
-        <nav className="shrink-0 border-t-2 border-slate-700 bg-[#060b18]"
-             style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-          <div className="flex">
-            {MOBILE_TABS.map(({ id, label, icon: Icon }) => {
-              const isActive = mobileTab === id;
-              const hasBadge = id === "feed" && criticalCount > 0;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setMobileTab(id)}
-                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-2 text-xs font-medium transition-colors relative ${
-                    isActive ? "text-gold-400" : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  {isActive && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-gold-400 rounded-full" />
-                  )}
-                  <div className="relative">
-                    <Icon className="w-5 h-5" />
-                    {hasBadge && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                    )}
-                  </div>
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+      {/* ── Mobile: scrollable panel — padding-bottom clears the fixed nav ── */}
+      <div
+        className="flex lg:hidden flex-1 overflow-y-auto p-4"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 4.5rem)" }}
+      >
+        {mobileTab === "briefing" && leftPanel}
+        {mobileTab === "feed"     && centerPanel}
+        {mobileTab === "chat"     && <ChatPanel />}
       </div>
+
+      {/* ── Mobile: fixed bottom tab bar — anchored to viewport, never scrolls ── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t-2 border-slate-700 bg-[#060b18]"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex">
+          {MOBILE_TABS.map(({ id, label, icon: Icon }) => {
+            const isActive = mobileTab === id;
+            const hasBadge = id === "feed" && criticalCount > 0;
+            return (
+              <button
+                key={id}
+                onClick={() => setMobileTab(id)}
+                className={`flex-1 flex flex-col items-center gap-1 py-2 px-2 text-xs font-medium transition-colors relative ${
+                  isActive ? "text-gold-400" : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-gold-400 rounded-full" />
+                )}
+                <div className="relative">
+                  <Icon className="w-5 h-5" />
+                  {hasBadge && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </div>
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

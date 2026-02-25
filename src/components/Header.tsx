@@ -79,7 +79,9 @@ export function Header({
             className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-gold-600/50 bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-            {isRefreshing ? "Refreshing..." : "Refresh Intel"}
+            <span className="hidden sm:inline">
+              {isRefreshing ? "Refreshing..." : "Refresh Intel"}
+            </span>
           </button>
           <button
             onClick={handleLogout}
