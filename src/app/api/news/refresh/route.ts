@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchAllNews } from "@/lib/rss";
-import { saveNewsItems, getNewsItems, updateNewsItems } from "@/lib/db";
+import { saveNewsItems, getNewsItems, getUncategorizedItems, updateNewsItems } from "@/lib/db";
 import { callClaudeJson } from "@/lib/bedrock";
 import { NewsItem, TreasuryCategory } from "@/types";
 
@@ -69,11 +69,16 @@ export async function POST() {
       return NextResponse.json({ error: "No news items fetched" }, { status: 503 });
     }
 
-    // 2. Save raw items first (so we have them even if AI analysis fails)
+    // 2. Save raw items first — saveNewsItems deduplicates by URL, so already-stored
+    //    articles (with their existing AI analysis) are never overwritten.
+    const beforeCount = getNewsItems({ limit: 500 }).length;
     saveNewsItems(rawItems);
+    const afterCount = getNewsItems({ limit: 500 }).length;
+    const newItemCount = afterCount - beforeCount;
 
-    // 3. Get items that need AI analysis (newly saved ones without aiSummary)
-    const toAnalyze = getNewsItems({ limit: 80 }).filter((i) => !i.aiSummary);
+    // 3. Get only items that have never been analyzed — filter-first so the limit
+    //    never hides new articles behind a wall of already-analyzed ones.
+    const toAnalyze = getUncategorizedItems();
 
     // 4. Analyze in batches of 20 to stay within token limits
     const BATCH_SIZE = 20;
@@ -97,6 +102,8 @@ export async function POST() {
 
     return NextResponse.json({
       fetched: rawItems.length,
+      newItems: newItemCount,
+      cached: rawItems.length - newItemCount,
       analyzed: allUpdates.length,
       timestamp: new Date().toISOString(),
     });

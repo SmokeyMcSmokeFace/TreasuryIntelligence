@@ -90,6 +90,12 @@ export function getNewsCount(): number {
   return readJson<NewsItem[]>(NEWS_FILE, []).length;
 }
 
+// Returns only items that have not yet been analyzed by Claude
+export function getUncategorizedItems(limit = 200): NewsItem[] {
+  const items = readJson<NewsItem[]>(NEWS_FILE, []);
+  return items.filter((i) => !i.aiSummary).slice(0, limit);
+}
+
 // ── Daily Briefings ─────────────────────────────────────────────────────────
 
 export function saveBriefing(briefing: DailyBriefing): void {
