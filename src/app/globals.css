@@ -4,14 +4,21 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ── Light theme (GE HealthCare) — default ────────────────────────────────── */
 :root {
-  --background: #060b18;
-  --foreground: #e2e8f0;
+  --scrollbar-track: #f0eeff;
+  --scrollbar-thumb: #c4b5fd;
+  --scrollbar-hover: #6022a6;
+}
+
+/* ── Dark theme ───────────────────────────────────────────────────────────── */
+html.dark {
+  --scrollbar-track: #0a1128;
+  --scrollbar-thumb: #1e2a4a;
+  --scrollbar-hover: #f59e0b;
 }
 
 body {
-  background-color: #060b18;
-  color: #e2e8f0;
   font-family: 'Inter', system-ui, sans-serif;
 }
 
@@ -21,26 +28,42 @@ body {
   height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a1128;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e2a4a;
+  background: var(--scrollbar-thumb);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
+  background: var(--scrollbar-hover);
 }
 
-/* Prose overrides for briefing */
+/* Prose — light mode */
 .prose {
-  color: #cbd5e1;
+  color: #374151;
 }
 .prose h1, .prose h2, .prose h3 {
-  color: #f1f5f9;
+  color: #111827;
 }
 .prose strong {
-  color: #f1f5f9;
+  color: #111827;
 }
 .prose ul > li::before {
+  background-color: #6022a6;
+}
+
+/* Prose — dark mode */
+html.dark .prose {
+  color: #cbd5e1;
+}
+html.dark .prose h1,
+html.dark .prose h2,
+html.dark .prose h3 {
+  color: #f1f5f9;
+}
+html.dark .prose strong {
+  color: #f1f5f9;
+}
+html.dark .prose ul > li::before {
   background-color: #f59e0b;
 }

@@ -3,57 +3,88 @@ import { ConverseCommand, type Message } from "@aws-sdk/client-bedrock-runtime";
 import { client, MODEL_ID, type ClaudeMessage } from "@/lib/bedrock";
 import { getNewsItems, getLatestBriefing } from "@/lib/db";
 import { searchNews } from "@/lib/rss";
+import { loadGEHCSnapshot, formatSnapshotText, lookupCompanyOnDemand } from "@/lib/edgar";
 import { CASH_BY_COUNTRY, CASH_BY_BANK } from "@/lib/mock-data";
 
 const SYSTEM_PROMPT = `You are the Treasury Intelligence Assistant for a Fortune 500 company.
-You have access to today's financial news feed, the daily executive briefing, and the company's current cash position data.
-Answer questions from the Treasury team with precision and actionable insights.
-
-Company context (mock data — will be replaced with live TMS data):
-- Cash by country and banking counterparty data is provided below
-- You are speaking to Treasury professionals who understand financial terminology
+You have access to today's financial news feed, the daily executive briefing, the company's cash positions, and a detailed financial snapshot of GE HealthCare Technologies (GEHC).
 
 Guidelines:
 - Be concise and direct — these are busy executives
-- Ground answers in the provided news and briefing context when relevant
-- If you need more current information on a topic, use the search_financial_news tool
-- Flag any risks you identify even if not directly asked
+- Ground answers in the provided context (news, briefing, company snapshot) when relevant
 - Format key figures and risks in **bold** for scannability
-- Reference specific articles or briefing points when answering questions about them`;
+- Reference specific articles or briefing points when answering questions about them
 
-const SEARCH_TOOL = {
-  toolSpec: {
-    name: "search_financial_news",
-    description:
-      "Search for recent financial news on a specific topic to supplement the current intelligence feed. Use this when the question requires information not covered in today's feed or briefing.",
-    inputSchema: {
-      json: {
-        type: "object",
-        properties: {
-          query: {
-            type: "string",
-            description:
-              'Search query for financial news — be specific (e.g. "Federal Reserve rate decision March 2025", "Deutsche Bank counterparty risk")',
+GE HealthCare (GEHC) is the default company for financial questions:
+- The GEHC financial snapshot is always provided in context — use it to answer debt, revenue, maturity, and liquidity questions directly
+- For GEHC data NOT in the snapshot (e.g. individual bond terms, pension details, specific line items), explain what's missing and ask the user if they want you to look it up on SEC EDGAR using the edgar_lookup tool. Only call edgar_lookup after the user confirms.
+- When calling edgar_lookup for deeper GEHC data, use ticker "GEHC" and the appropriate data_type
+
+Other companies:
+- If the user explicitly asks about a different company (not GEHC), confirm the company name/ticker with them before calling edgar_lookup
+- Do not assume a company unless clearly specified
+
+Tools available:
+- search_financial_news: search for news on a topic beyond today's feed — use proactively when useful
+- edgar_lookup: fetch financial data from SEC EDGAR — always ask user first unless they've already confirmed`;
+
+const TOOLS = [
+  {
+    toolSpec: {
+      name: "search_financial_news",
+      description:
+        "Search for recent financial news on a specific topic to supplement the current intelligence feed.",
+      inputSchema: {
+        json: {
+          type: "object",
+          properties: {
+            query: {
+              type: "string",
+              description: "Specific financial news search query",
+            },
           },
+          required: ["query"],
         },
-        required: ["query"],
       },
     },
   },
-};
+  {
+    toolSpec: {
+      name: "edgar_lookup",
+      description:
+        "Fetch financial data from SEC EDGAR for a company. For GEHC, use when data is not in the snapshot. For other companies, use when user explicitly requests. Always confirm with user before calling.",
+      inputSchema: {
+        json: {
+          type: "object",
+          properties: {
+            ticker_or_name: {
+              type: "string",
+              description: "Company ticker (e.g. 'GEHC', 'AAPL') or full name",
+            },
+            data_type: {
+              type: "string",
+              enum: ["balance_sheet", "debt_maturity", "income_statement", "cash_flow", "full_snapshot"],
+              description: "Which financial data to retrieve",
+            },
+          },
+          required: ["ticker_or_name", "data_type"],
+        },
+      },
+    },
+  },
+];
 
-// Run the Converse API loop, executing tool calls as needed (max 4 turns)
 async function runChat(messages: Message[], systemPrompt: string): Promise<string> {
   const conversation = [...messages];
 
-  for (let turn = 0; turn < 4; turn++) {
+  for (let turn = 0; turn < 5; turn++) {
     const command = new ConverseCommand({
       modelId: MODEL_ID,
       messages: conversation,
       system: [{ text: systemPrompt }],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      toolConfig: { tools: [SEARCH_TOOL as any] },
-      inferenceConfig: { maxTokens: 1200, temperature: 0.5 },
+      toolConfig: { tools: TOOLS as any },
+      inferenceConfig: { maxTokens: 1500, temperature: 0.5 },
     });
 
     const response = await client.send(command);
@@ -62,7 +93,6 @@ async function runChat(messages: Message[], systemPrompt: string): Promise<strin
 
     conversation.push(outputMsg);
 
-    // Done — return text
     if (response.stopReason !== "tool_use") {
       for (const block of outputMsg.content ?? []) {
         if ("text" in block && block.text) return block.text;
@@ -70,21 +100,23 @@ async function runChat(messages: Message[], systemPrompt: string): Promise<strin
       throw new Error("No text in final response");
     }
 
-    // Execute tool calls and add results
+    // Execute tool calls
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const toolResults: any[] = [];
     for (const block of outputMsg.content ?? []) {
       if (!("toolUse" in block) || !block.toolUse) continue;
       const { toolUseId, name, input } = block.toolUse;
+      const inp = input as Record<string, string>;
 
       let result = "Tool not available.";
       try {
         if (name === "search_financial_news") {
-          const { query } = input as { query: string };
-          result = await searchNews(query);
+          result = await searchNews(inp.query);
+        } else if (name === "edgar_lookup") {
+          result = await lookupCompanyOnDemand(inp.ticker_or_name, inp.data_type as never);
         }
       } catch (e) {
-        result = `Search failed: ${(e as Error).message}`;
+        result = `Lookup failed: ${(e as Error).message}`;
       }
 
       toolResults.push({
@@ -109,7 +141,13 @@ export async function POST(request: Request) {
 
     // ── Build context ────────────────────────────────────────────────────────
 
-    // All recent news (age-filtered via getNewsItems)
+    // GEHC financial snapshot
+    const gehcSnapshot = loadGEHCSnapshot();
+    const gehcContext = gehcSnapshot
+      ? formatSnapshotText(gehcSnapshot)
+      : "GE HealthCare snapshot not yet loaded. Run a Refresh Intel to initialize it.";
+
+    // All recent news
     const newsItems = getNewsItems({ limit: 150 });
     const newsContext =
       newsItems.length > 0
@@ -121,15 +159,15 @@ export async function POST(request: Request) {
                 }`
             )
             .join("\n")
-        : "No news items loaded yet. Ask the user to run a news refresh.";
+        : "No news items loaded yet. Run a Refresh Intel first.";
 
     // Today's daily briefing
     const briefing = getLatestBriefing();
     const briefingContext = briefing
-      ? `--- TODAY'S EXECUTIVE BRIEFING (generated ${new Date(briefing.generatedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}) ---\n${briefing.content}\n--- END BRIEFING ---`
-      : "No daily briefing has been generated yet for today.";
+      ? `--- TODAY'S EXECUTIVE BRIEFING (${new Date(briefing.generatedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}) ---\n${briefing.content}\n--- END BRIEFING ---`
+      : "No daily briefing generated yet.";
 
-    // Cash position data
+    // Cash positions
     const cashContext = `Cash by Country (USD millions):\n${CASH_BY_COUNTRY.map(
       (c) => `  ${c.name}: $${c.balance}M${c.currency ? ` (${c.currency})` : ""}`
     ).join("\n")}\n\nCash by Banking Counterparty (USD millions):\n${CASH_BY_BANK.map(
@@ -141,16 +179,17 @@ export async function POST(request: Request) {
 
     const contextualSystemPrompt = `${SYSTEM_PROMPT}
 
---- COMPANY CASH POSITIONS ---
+--- COMPANY CASH POSITIONS (mock data) ---
 ${cashContext}
 
 --- TODAY'S NEWS FEED (${newsItems.length} articles) ---
 ${newsContext}
 
 ${briefingContext}
+
+${gehcContext}
 --- END CONTEXT ---`;
 
-    // Convert messages to Bedrock format
     const bedrockMessages: Message[] = messages.map((m) => ({
       role: m.role,
       content: [{ text: m.content }],

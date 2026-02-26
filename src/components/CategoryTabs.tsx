@@ -23,7 +23,7 @@ interface CategoryTabsProps {
 
 export function CategoryTabs({ active, onChange, counts }: CategoryTabsProps) {
   return (
-    <div className="flex items-center gap-1 px-6 py-2 border-b border-slate-800/60 overflow-x-auto scrollbar-none">
+    <div className="flex items-center gap-1 px-6 py-2 border-b border-gray-100 dark:border-slate-800/60 overflow-x-auto scrollbar-none">
       {ALL_CATEGORIES.map(({ key, label }) => {
         const count = key === "all" ? Object.values(counts).reduce((a, b) => a + b, 0) : (counts[key] ?? 0);
         const isActive = active === key;
@@ -33,8 +33,8 @@ export function CategoryTabs({ active, onChange, counts }: CategoryTabsProps) {
             onClick={() => onChange(key)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium whitespace-nowrap transition-all ${
               isActive
-                ? "bg-gold-500/20 text-gold-400 border border-gold-600/50"
-                : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 border border-transparent"
+                ? "bg-gehc-500/10 dark:bg-gold-500/20 text-gehc-600 dark:text-gold-400 border border-gehc-500/30 dark:border-gold-600/50"
+                : "text-gray-400 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/50 border border-transparent"
             }`}
           >
             <span>{label}</span>
@@ -42,8 +42,8 @@ export function CategoryTabs({ active, onChange, counts }: CategoryTabsProps) {
               <span
                 className={`text-[10px] px-1 py-0.5 rounded ${
                   isActive
-                    ? "bg-gold-500/30 text-gold-300"
-                    : "bg-slate-700 text-slate-400"
+                    ? "bg-gehc-500/20 dark:bg-gold-500/30 text-gehc-500 dark:text-gold-300"
+                    : "bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400"
                 }`}
               >
                 {count}

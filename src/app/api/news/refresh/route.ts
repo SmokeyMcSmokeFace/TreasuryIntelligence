@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchAllNews } from "@/lib/rss";
 import { saveNewsItems, getNewsItems, getUncategorizedItems, updateNewsItems } from "@/lib/db";
+import { checkAndRefreshGEHCSnapshot } from "@/lib/edgar";
 import { callClaudeJson } from "@/lib/bedrock";
 import { NewsItem, TreasuryCategory } from "@/types";
 
@@ -100,11 +101,15 @@ export async function POST() {
       updateNewsItems(allUpdates);
     }
 
+    // 6. Silently check for a new GEHC SEC filing and update snapshot if needed
+    const gehcUpdated = await checkAndRefreshGEHCSnapshot();
+
     return NextResponse.json({
       fetched: rawItems.length,
       newItems: newItemCount,
       cached: rawItems.length - newItemCount,
       analyzed: allUpdates.length,
+      gehcSnapshotUpdated: gehcUpdated,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

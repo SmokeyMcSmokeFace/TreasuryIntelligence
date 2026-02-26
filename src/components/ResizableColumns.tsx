@@ -19,12 +19,10 @@ function Divider({ onMouseDown }: { onMouseDown: (e: React.MouseEvent) => void }
       className="relative shrink-0 w-4 flex items-center justify-center cursor-col-resize group z-10"
       title="Drag to resize"
     >
-      {/* Visual line */}
-      <div className="w-px h-full bg-slate-800 group-hover:bg-gold-500/50 transition-colors duration-150" />
-      {/* Drag grip dots */}
+      <div className="w-px h-full bg-gray-200 dark:bg-slate-800 group-hover:bg-gehc-500/50 dark:group-hover:bg-gold-500/50 transition-colors duration-150" />
       <div className="absolute flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="w-1 h-1 rounded-full bg-gold-500/60" />
+          <div key={i} className="w-1 h-1 rounded-full bg-gehc-500/60 dark:bg-gold-500/60" />
         ))}
       </div>
     </div>
@@ -45,7 +43,7 @@ export function ResizableColumns({ left, center, right }: Props) {
       lastX.current = e.clientX;
 
       const containerWidth = containerRef.current?.offsetWidth ?? 1200;
-      const maxSide = Math.floor(containerWidth * 0.4); // cap at 40% of container
+      const maxSide = Math.floor(containerWidth * 0.4);
 
       if (dragging.current === "left") {
         setLeftWidth((w) => Math.max(MIN_WIDTH, Math.min(maxSide, w + delta)));

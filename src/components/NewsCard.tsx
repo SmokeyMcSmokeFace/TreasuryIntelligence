@@ -13,7 +13,7 @@ export function NewsCard({ item }: NewsCardProps) {
   const urgClass = urgencyColor(item.urgency);
 
   return (
-    <article className="group relative border border-slate-800 rounded-lg bg-slate-900/40 hover:bg-slate-900/80 hover:border-slate-700 transition-all p-4 w-full overflow-hidden">
+    <article className="group relative border border-gray-100 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/40 hover:bg-gray-50 dark:hover:bg-slate-900/80 hover:border-gray-200 dark:hover:border-slate-700 transition-all p-4 w-full overflow-hidden shadow-sm dark:shadow-none">
       {/* Urgency stripe */}
       {item.urgency >= 4 && (
         <div
@@ -27,17 +27,13 @@ export function NewsCard({ item }: NewsCardProps) {
         <div className="flex-1 min-w-0">
           {/* Badges row */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span
-              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${urgClass}`}
-            >
+            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${urgClass}`}>
               {urgencyLabel(item.urgency)}
             </span>
-            <span
-              className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${catMeta.bgColor} ${catMeta.color}`}
-            >
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${catMeta.bgColor} ${catMeta.color}`}>
               {catMeta.label}
             </span>
-            <span className="text-[10px] text-slate-600 ml-auto">
+            <span className="text-[10px] text-gray-400 dark:text-slate-600 ml-auto">
               {timeAgo(item.publishedAt)}
             </span>
           </div>
@@ -47,7 +43,7 @@ export function NewsCard({ item }: NewsCardProps) {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-sm font-medium text-slate-200 hover:text-white group-hover:text-white leading-snug mb-2 line-clamp-2"
+            className="block text-sm font-medium text-gray-800 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white group-hover:text-gray-900 dark:group-hover:text-white leading-snug mb-2 line-clamp-2"
           >
             {item.title}
             <ExternalLink className="inline-block w-3 h-3 ml-1 opacity-0 group-hover:opacity-50 transition-opacity" />
@@ -55,18 +51,18 @@ export function NewsCard({ item }: NewsCardProps) {
 
           {/* AI Summary */}
           {item.aiSummary ? (
-            <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 flex items-start gap-1.5">
-              <Sparkles className="w-3 h-3 text-gold-500/60 mt-0.5 shrink-0" />
+            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed line-clamp-2 flex items-start gap-1.5">
+              <Sparkles className="w-3 h-3 text-gehc-500/60 dark:text-gold-500/60 mt-0.5 shrink-0" />
               <span>{item.aiSummary}</span>
             </p>
           ) : item.description ? (
-            <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+            <p className="text-xs text-gray-400 dark:text-slate-500 leading-relaxed line-clamp-2">
               {item.description}
             </p>
           ) : null}
 
           {/* Source */}
-          <p className="text-[10px] text-slate-600 mt-2">{item.source}</p>
+          <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-2">{item.source}</p>
         </div>
       </div>
     </article>

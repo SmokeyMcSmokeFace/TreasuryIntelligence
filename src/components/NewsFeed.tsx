@@ -12,8 +12,8 @@ interface NewsFeedProps {
 export function NewsFeed({ items, isLoading }: NewsFeedProps) {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3 text-slate-600">
-        <Loader2 className="w-6 h-6 animate-spin text-gold-500/50" />
+      <div className="flex flex-col items-center justify-center h-64 gap-3 text-gray-400 dark:text-slate-600">
+        <Loader2 className="w-6 h-6 animate-spin text-gehc-500/50 dark:text-gold-500/50" />
         <p className="text-sm">Loading intelligence feed...</p>
       </div>
     );
@@ -21,7 +21,7 @@ export function NewsFeed({ items, isLoading }: NewsFeedProps) {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3 text-slate-600">
+      <div className="flex flex-col items-center justify-center h-64 gap-3 text-gray-400 dark:text-slate-600">
         <Inbox className="w-8 h-8" />
         <p className="text-sm">No news items yet.</p>
         <p className="text-xs">Click &ldquo;Refresh Intel&rdquo; to load today&rsquo;s feed.</p>

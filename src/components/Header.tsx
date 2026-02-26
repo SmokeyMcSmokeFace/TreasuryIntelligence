@@ -25,7 +25,6 @@ export function Header({
   const menuRef = useRef<HTMLDivElement>(null);
   const now = new Date();
 
-  // Close menu on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -49,7 +48,7 @@ export function Header({
   });
 
   return (
-    <header className="border-b border-slate-800 bg-navy-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <header className="shrink-0 border-b border-gehc-700 dark:border-slate-800 bg-gehc-800 dark:bg-navy-900/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex items-center justify-between px-6 py-3">
         {/* Brand + dropdown menu */}
         <div className="flex items-center gap-3">
@@ -58,22 +57,22 @@ export function Header({
               onClick={() => setMenuOpen((o) => !o)}
               className={`flex items-center justify-center w-8 h-8 rounded border transition-all ${
                 menuOpen
-                  ? "bg-gold-500/30 border-gold-500/60"
-                  : "bg-gold-500/20 border-gold-500/40 hover:bg-gold-500/30 hover:border-gold-500/60"
+                  ? "bg-white/30 border-white/50"
+                  : "bg-white/20 border-white/30 hover:bg-white/30 hover:border-white/50"
               }`}
               title="Menu"
             >
-              <Shield className="w-4 h-4 text-gold-400" />
+              <Shield className="w-4 h-4 text-white" />
             </button>
 
             {menuOpen && (
-              <div className="absolute top-10 left-0 z-50 w-44 border border-slate-700 rounded-lg bg-[#0d1526] shadow-2xl overflow-hidden">
+              <div className="absolute top-10 left-0 z-50 w-44 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-[#0d1526] shadow-xl overflow-hidden">
                 <Link
                   href="/settings"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800/70 transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800/70 transition-colors"
                 >
-                  <Settings className="w-3.5 h-3.5 text-gold-400/70" />
+                  <Settings className="w-3.5 h-3.5 text-gehc-500 dark:text-gold-400/70" />
                   Settings
                 </Link>
               </div>
@@ -84,13 +83,13 @@ export function Header({
             <h1 className="text-sm font-semibold text-white tracking-wide">
               Treasury Intelligence Platform
             </h1>
-            <p className="text-xs text-slate-500">{dateStr}</p>
+            <p className="text-xs text-gehc-200 dark:text-slate-500">{dateStr}</p>
           </div>
         </div>
 
         {/* Stats */}
         <div className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-white/70 dark:text-slate-400">
             <TrendingUp className="w-3.5 h-3.5 text-green-400" />
             <span>
               <span className="text-white font-medium">{newsCount}</span> items
@@ -99,13 +98,13 @@ export function Header({
           {criticalCount > 0 && (
             <div className="flex items-center gap-2 text-xs animate-pulse">
               <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-              <span className="text-red-400 font-medium">
+              <span className="text-red-300 dark:text-red-400 font-medium">
                 {criticalCount} critical alert{criticalCount !== 1 ? "s" : ""}
               </span>
             </div>
           )}
           {lastRefresh && (
-            <span className="text-xs text-slate-600">Updated {lastRefresh}</span>
+            <span className="text-xs text-white/40 dark:text-slate-600">Updated {lastRefresh}</span>
           )}
         </div>
 
@@ -114,7 +113,7 @@ export function Header({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-gold-600/50 bg-gold-500/10 text-gold-400 hover:bg-gold-500/20 hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded border border-white/30 dark:border-gold-600/50 bg-white/10 dark:bg-gold-500/10 text-white dark:text-gold-400 hover:bg-white/20 dark:hover:bg-gold-500/20 hover:border-white/50 dark:hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             <span className="hidden sm:inline">
@@ -124,7 +123,7 @@ export function Header({
           <button
             onClick={handleLogout}
             title="Sign out"
-            className="p-1.5 rounded border border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-600 transition-all"
+            className="p-1.5 rounded border border-white/20 dark:border-slate-700 text-white/60 dark:text-slate-500 hover:text-white dark:hover:text-slate-300 hover:border-white/40 dark:hover:border-slate-600 transition-all"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>

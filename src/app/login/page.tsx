@@ -42,13 +42,13 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060b18] flex items-center justify-center px-4">
-      {/* Background grid */}
+    <div className="min-h-screen bg-gehc-900 flex items-center justify-center px-4">
+      {/* Background pattern */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-10"
         style={{
           backgroundImage:
-            "linear-gradient(#f59e0b 1px, transparent 1px), linear-gradient(90deg, #f59e0b 1px, transparent 1px)",
+            "linear-gradient(#a87de8 1px, transparent 1px), linear-gradient(90deg, #a87de8 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
@@ -56,31 +56,29 @@ function LoginForm() {
       <div className="relative w-full max-w-sm">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gold-500/20 border border-gold-500/40 mb-4">
-            <Shield className="w-6 h-6 text-gold-400" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/20 border border-white/30 mb-4">
+            <Shield className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-xl font-semibold text-white tracking-wide">
             Treasury Intelligence
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-gehc-200 mt-1">
             Sign in to access your dashboard
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 backdrop-blur-sm">
+        <div className="bg-white/10 border border-white/20 rounded-xl p-8 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-950/50 border border-red-800 text-red-400 text-sm">
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-500/20 border border-red-400/40 text-red-200 text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            {/* Email */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium text-gehc-100 uppercase tracking-wider">
                 Email
               </label>
               <input
@@ -91,13 +89,12 @@ function LoginForm() {
                 autoComplete="email"
                 autoFocus
                 placeholder="you@company.com"
-                className="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold-600/60 focus:bg-slate-800 transition-colors"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-colors"
               />
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium text-gehc-100 uppercase tracking-wider">
                 Password
               </label>
               <input
@@ -107,15 +104,14 @@ function LoginForm() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-gold-600/60 focus:bg-slate-800 transition-colors"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-colors"
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-gold-500/20 border border-gold-600/50 text-gold-400 font-medium text-sm hover:bg-gold-500/30 hover:border-gold-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white text-gehc-800 font-semibold text-sm hover:bg-gehc-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               {isLoading ? (
                 <>
@@ -129,7 +125,7 @@ function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-700 mt-6">
+        <p className="text-center text-xs text-white/30 mt-6">
           Treasury Intelligence Platform · Confidential
         </p>
       </div>

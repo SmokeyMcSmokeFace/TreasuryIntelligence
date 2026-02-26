@@ -17,9 +17,23 @@ const config: Config = {
           700: "#132052",
         },
         gold: {
+          300: "#fde68a",
           400: "#fbbf24",
           500: "#f59e0b",
           600: "#d97706",
+        },
+        // GE HealthCare brand purple
+        gehc: {
+          50:  "#f3eeff",
+          100: "#e4d4ff",
+          200: "#c9a8ff",
+          300: "#a87de8",
+          400: "#8b50d4",
+          500: "#6022a6", // primary brand purple
+          600: "#4e1a8a",
+          700: "#3d1470",
+          800: "#2d0a6b", // dark purple (header)
+          900: "#1a063d",
         },
       },
       fontFamily: {
